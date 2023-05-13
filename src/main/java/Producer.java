@@ -5,13 +5,14 @@ public class Producer implements Runnable{
     private boolean done;
     private ProductsList productList;
     private Magazine magazine;
-    private final int timeBound = 5;
+    private final int timeBound;
 
-    public Producer(Magazine magazine){
+    public Producer(Magazine magazine, int timeBound){
         this.done = false;
         this.ID = Thread.currentThread().getId();
         this.productList = new ProductsList();
         this.magazine = magazine;
+        this.timeBound = timeBound;
     }
 
     public String toString() {
@@ -41,7 +42,7 @@ public class Producer implements Runnable{
                     System.out.println(this + "has placed all: " + randomQuantity + " objects of type: " + ProductsList.products[randomType] + " to the magazine");
                 }
             } catch (InterruptedException e) {
-                System.out.println(this + "Thread interrupted. Finished placing orders, ending...");
+                System.out.println(this + "Thread interrupted. Finished producing orders, ending...");
                 done = true;
             }
         }

@@ -4,16 +4,17 @@ import java.util.Map;
 public class Magazine {
     private final int Size;
     private final Map<String, Integer> Products;
-    private final int timeout = 5;
-    private final int NumberOfTries = 5;
-    private boolean isStuck;
+    private final int timeout;
+    private final int NumberOfTries;
     private int stuckIterations;
-    private final int stuckBound = 10;
+    private final int stuckBound;
 
-    public Magazine(int Size){
+    public Magazine(int Size, int timeout, int NumberOfTries, int stuckBound){
         this.Size = Size;
+        this.timeout = timeout;
+        this.NumberOfTries = NumberOfTries;
+        this.stuckBound = stuckBound;
         this.Products = new HashMap<>();
-        this.isStuck = false;
         this.stuckIterations = 0;
     }
 
@@ -86,5 +87,12 @@ public class Magazine {
         }
         notifyAll();
         return status;
+    }
+
+    public synchronized void printProducts(){
+        System.out.println("The contents of the magazine are: ");
+        for(String item : this.Products.keySet()) {
+           System.out.println(item + ": " + this.Products.get(item));
+        }
     }
 }

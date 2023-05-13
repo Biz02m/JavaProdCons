@@ -5,10 +5,11 @@ public class Consumer implements Runnable{
     private boolean done;
     private ProductsList productList;
     private Magazine magazine;
-    private final int timeBound = 5;
+    private final int timeBound;
 
-    public Consumer(Magazine magazine){
+    public Consumer(Magazine magazine, int timeBound){
         this.done = false;
+        this.timeBound = timeBound;
         this.ID = Thread.currentThread().getId();
         this.productList = new ProductsList();
         this.magazine = magazine;

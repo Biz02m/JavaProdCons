@@ -7,12 +7,16 @@ public class Producer implements Runnable{
     private Magazine magazine;
     private final int timeBound;
 
-    public Producer(Magazine magazine, int timeBound){
+    public Producer(Magazine magazine, int timeBound, int ID){
         this.done = false;
-        this.ID = Thread.currentThread().getId();
+        this.ID = ID;
         this.productList = new ProductsList();
         this.magazine = magazine;
-        this.timeBound = timeBound;
+        if(timeBound < 10) {
+            this.timeBound = 10;
+        }else{
+            this.timeBound = timeBound;
+        }
     }
 
     public String toString() {
@@ -27,13 +31,14 @@ public class Producer implements Runnable{
         while(!done){
             randomType = random.nextInt(ProductsList.products.length);
             randomQuantity = random.nextInt(magazine.getSize()/2);
-            randomTime = random.nextInt(timeBound);
-            System.out.println(this + "is putting: " + ProductsList.products[randomType] + " of quantity: " + randomQuantity + " to the magazine");
+            randomTime = random.nextInt(timeBound - 10,timeBound);
+
             try {
-                Thread.sleep(1000 * randomTime);
+                System.out.println(this + "is putting: " + ProductsList.products[randomType] + " of quantity: " + randomQuantity + " to the magazine");
                 quantity = magazine.put(ProductsList.products[randomType], randomQuantity);
                 if(quantity < 0){
                     System.out.println(this + "did not manage to put any: " + ProductsList.products[randomType] + " to the magazine");
+                    Thread.sleep(1000 * randomTime);
                 }
                 else if (quantity > 0){
                     System.out.println(this + "has placed part of the: " + randomQuantity + " objects of type: " + ProductsList.products[randomType] + " to the magazine");
@@ -41,10 +46,12 @@ public class Producer implements Runnable{
                 else{ //quantity is 1
                     System.out.println(this + "has placed all: " + randomQuantity + " objects of type: " + ProductsList.products[randomType] + " to the magazine");
                 }
+                Thread.sleep(1000 * randomTime);
             } catch (InterruptedException e) {
                 System.out.println(this + "Thread interrupted. Finished producing orders, ending...");
                 done = true;
             }
+
         }
     }
 }

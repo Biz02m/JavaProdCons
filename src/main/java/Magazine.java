@@ -54,8 +54,11 @@ public class Magazine {
 
             //If we spotted that a number of orders have been cancelled: remove all
             //contents from the magazine.
-            if(stuckIterations > stuckBound){
+            if(stuckIterations > stuckBound && getFreeSpace() <= 0){
                 emptyMagazine();
+                System.out.println("___________");
+                System.out.println("___PURGE___");
+                System.out.println("___________");
             }
         }
         stuckIterations--;
@@ -72,13 +75,22 @@ public class Magazine {
 
     public synchronized int put(String type, int quantity){
         int status;
-        if(getFreeSpace() != 0) {
-            if (getFreeSpace() > quantity) {
-                this.Products.put(type, this.Products.get(type) + quantity);
+        int freeSpace = getFreeSpace();
+        if(getFreeSpace() > 0) {
+            if (freeSpace > quantity) {
+                if(this.Products.containsKey(type)) {
+                    this.Products.put(type, this.Products.get(type) + quantity);
+                }else{
+                    this.Products.put(type, quantity);
+                }
                 status = 0;
             } else {
-                int fill = quantity - getFreeSpace();
-                this.Products.put(type, this.Products.get(type) + fill);
+                if(this.Products.containsKey(type)) {
+                    this.Products.put(type, this.Products.get(type) + freeSpace);
+                }
+                else{
+                    this.Products.put(type, freeSpace);
+                }
                 status = 1;
             }
         }
@@ -90,6 +102,7 @@ public class Magazine {
     }
 
     public synchronized void printProducts(){
+        System.out.println("Products in the warehouse: " + getProductCount() + "/" + this.Size);
         System.out.println("The contents of the magazine are: ");
         for(String item : this.Products.keySet()) {
            System.out.println(item + ": " + this.Products.get(item));

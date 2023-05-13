@@ -4,10 +4,17 @@ import java.util.Map;
 public class Magazine {
     private final int Size;
     private final Map<String, Integer> Products;
+    private final int timeout = 5;
+    private final int NumberOfTries = 5;
+    private boolean isStuck;
+    private int stuckIterations;
+    private final int stuckBound = 10;
 
     public Magazine(int Size){
         this.Size = Size;
         this.Products = new HashMap<>();
+        this.isStuck = false;
+        this.stuckIterations = 0;
     }
 
     public int getSize() {
@@ -22,6 +29,10 @@ public class Magazine {
         return  prodCount;
     }
 
+    public void emptyMagazine(){
+        this.Products.clear();
+    }
+
     public int getFreeSpace(){
         return this.Size - getProductCount();
     }
@@ -30,9 +41,23 @@ public class Magazine {
     //method for consumer threads
     public synchronized int take(String type, int quantity) throws InterruptedException {
         int retQ;
-        if(!this.Products.containsKey(type)){
-            wait();
+        int tries = 0;
+        while(!this.Products.containsKey(type)){
+            wait(1000*timeout);
+            tries ++;
+            if(tries >=NumberOfTries){
+                retQ = -1;
+                stuckIterations++;
+                return retQ;
+            }
+
+            //If we spotted that a number of orders have been cancelled: remove all
+            //contents from the magazine.
+            if(stuckIterations > stuckBound){
+                emptyMagazine();
+            }
         }
+        stuckIterations--;
         if(this.Products.get(type) > quantity){
             this.Products.put(type, this.Products.get(type) - quantity);
             retQ = quantity;
